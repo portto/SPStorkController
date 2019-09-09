@@ -23,6 +23,7 @@ import UIKit
 
 class SPStorkPresentationController: UIPresentationController, UIGestureRecognizerDelegate {
     
+    var scalePresentingView: Bool = false
     var swipeToDismissEnabled: Bool = true
     var tapAroundToDismissEnabled: Bool = true
     var showCloseButton: Bool = false
@@ -66,6 +67,7 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
     var cornerRadius: CGFloat = 10
     
     private var scaleForPresentingView: CGFloat {
+        guard self.scalePresentingView else { return 1 }
         guard let containerView = containerView else { return 0 }
         let factor = 1 - ((self.cornerRadius + 3) * 2 / containerView.frame.width)
         return factor
@@ -163,13 +165,15 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
             self.backgroundView.bottomAnchor.constraint(equalTo: window.bottomAnchor)
         ])
         
-        let transformForSnapshotView = CGAffineTransform.identity
-            .translatedBy(x: 0, y: -snapshotViewContainer.frame.origin.y)
-            .translatedBy(x: 0, y: self.topSpace)
-            .translatedBy(x: 0, y: -snapshotViewContainer.frame.height / 2)
-            .scaledBy(x: scaleForPresentingView, y: scaleForPresentingView)
-            .translatedBy(x: 0, y: snapshotViewContainer.frame.height / 2)
-        
+        var transformForSnapshotView = CGAffineTransform.identity
+        if self.scalePresentingView {
+            transformForSnapshotView = transformForSnapshotView.translatedBy(x: 0, y: -snapshotViewContainer.frame.origin.y)
+                .translatedBy(x: 0, y: self.topSpace)
+                .translatedBy(x: 0, y: -snapshotViewContainer.frame.height / 2)
+                .scaledBy(x: scaleForPresentingView, y: scaleForPresentingView)
+                .translatedBy(x: 0, y: snapshotViewContainer.frame.height / 2)
+        }
+
         self.addCornerRadiusAnimation(for: self.snapshotView, cornerRadius: self.cornerRadius, duration: 0.6)
         self.snapshotView?.layer.masksToBounds = true
         if #available(iOS 11.0, *) {
@@ -188,7 +192,7 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
             snapshotView.frame = initialFrame
             snapshotView.transform = transformForSnapshotView
             snapshotView.alpha = 1 - self.alpha
-            snapshotView.layer.cornerRadius = self.cornerRadius
+            snapshotView.layer.cornerRadius = self.scalePresentingView ? self.cornerRadius : 0
             snapshotView.contentMode = .top
             snapshotView.layer.masksToBounds = true
             rootSnapshotView = snapshotView
@@ -250,13 +254,15 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
         
         let initialFrame: CGRect = presentingViewController.isPresentedAsStork ? presentingViewController.view.frame : containerView.bounds
         
-        let initialTransform = CGAffineTransform.identity
-            .translatedBy(x: 0, y: -initialFrame.origin.y)
-            .translatedBy(x: 0, y: self.topSpace)
-            .translatedBy(x: 0, y: -initialFrame.height / 2)
-            .scaledBy(x: scaleForPresentingView, y: scaleForPresentingView)
-            .translatedBy(x: 0, y: initialFrame.height / 2)
-        
+        var initialTransform = CGAffineTransform.identity
+        if self.scalePresentingView {
+            initialTransform = initialTransform.translatedBy(x: 0, y: -initialFrame.origin.y)
+                .translatedBy(x: 0, y: self.topSpace)
+                .translatedBy(x: 0, y: -initialFrame.height / 2)
+                .scaledBy(x: scaleForPresentingView, y: scaleForPresentingView)
+                .translatedBy(x: 0, y: initialFrame.height / 2)
+        }
+
         self.snapshotViewTopConstraint?.isActive = false
         self.snapshotViewWidthConstraint?.isActive = false
         self.snapshotViewAspectRatioConstraint?.isActive = false
@@ -484,8 +490,10 @@ extension SPStorkPresentationController {
             
             self.presentedView?.transform = CGAffineTransform(translationX: 0, y: translationForModal)
             
-            let scaleFactor = 1 + (translationForModal / 5000)
-            self.snapshotView?.transform = CGAffineTransform.init(scaleX: scaleFactor, y: scaleFactor)
+            if self.scalePresentingView {
+                let scaleFactor = 1 + (translationForModal / 5000)
+                self.snapshotView?.transform = CGAffineTransform.init(scaleX: scaleFactor, y: scaleFactor)
+            }
             let gradeFactor = 1 + (translationForModal / 7000)
             self.gradeView.alpha = self.alpha - ((gradeFactor - 1) * 15)
         } else {
@@ -546,9 +554,9 @@ extension SPStorkPresentationController {
         self.snapshotViewContainer.addSubview(currentSnapshotView)
         self.constraints(view: currentSnapshotView, to: self.snapshotViewContainer)
         self.snapshotView = currentSnapshotView
-        self.snapshotView?.layer.cornerRadius = self.cornerRadius
+        self.snapshotView?.layer.cornerRadius = self.scalePresentingView ? self.cornerRadius : 0
         self.snapshotView?.layer.masksToBounds = true
-        if #available(iOS 11.0, *) {
+        if #available(iOS 11.0, *), self.scalePresentingView {
             snapshotView?.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         }
         self.gradeView.removeFromSuperview()
@@ -567,7 +575,7 @@ extension SPStorkPresentationController {
         let snapshotReferenceSize = presentingViewController.view.frame.size
         let aspectRatio = snapshotReferenceSize.width / snapshotReferenceSize.height
         
-        self.snapshotViewTopConstraint = snapshotViewContainer.topAnchor.constraint(equalTo: containerView.topAnchor, constant: self.topSpace)
+        self.snapshotViewTopConstraint = snapshotViewContainer.topAnchor.constraint(equalTo: containerView.topAnchor, constant: self.scalePresentingView ? self.topSpace : 0)
         self.snapshotViewWidthConstraint = snapshotViewContainer.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: scaleForPresentingView)
         self.snapshotViewAspectRatioConstraint = snapshotViewContainer.widthAnchor.constraint(equalTo: snapshotViewContainer.heightAnchor, multiplier: aspectRatio)
         
@@ -587,7 +595,7 @@ extension SPStorkPresentationController {
     }
     
     private func addCornerRadiusAnimation(for view: UIView?, cornerRadius: CGFloat, duration: CFTimeInterval) {
-        guard let view = view else { return }
+        guard let view = view, self.scalePresentingView else { return }
         let animation = CABasicAnimation(keyPath:"cornerRadius")
         animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
         animation.fromValue = view.layer.cornerRadius

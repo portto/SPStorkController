@@ -23,6 +23,7 @@ import UIKit
 
 public final class SPStorkTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     
+    public var scalePresentingView: Bool = false
     public var swipeToDismissEnabled: Bool = true
     public var tapAroundToDismissEnabled: Bool = true
     public var showCloseButton: Bool = false
@@ -39,6 +40,7 @@ public final class SPStorkTransitioningDelegate: NSObject, UIViewControllerTrans
     
     public func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         let controller = SPStorkPresentationController(presentedViewController: presented, presenting: presenting)
+        controller.scalePresentingView = self.scalePresentingView
         controller.swipeToDismissEnabled = self.swipeToDismissEnabled
         controller.tapAroundToDismissEnabled = self.tapAroundToDismissEnabled
         controller.showCloseButton = self.showCloseButton
