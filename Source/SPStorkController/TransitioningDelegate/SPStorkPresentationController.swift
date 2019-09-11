@@ -26,12 +26,12 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
     var swipeToDismissEnabled: Bool = true
     var tapAroundToDismissEnabled: Bool = true
     var showCloseButton: Bool = false
-    var showIndicator: Bool = true
+    var showIndicator: Bool = false
     var indicatorColor: UIColor = UIColor.init(red: 202/255, green: 201/255, blue: 207/255, alpha: 1)
     var hideIndicatorWhenScroll: Bool = false
     var indicatorMode: SPStorkArrowMode = .auto
     var customHeight: CGFloat? = nil
-    var translateForDismiss: CGFloat = 200
+    var translateForDismiss: CGFloat = 50
     var hapticMoments: [SPStorkHapticMoments] = [.willDismissIfRelease]
     
     var transitioningDelegate: SPStorkTransitioningDelegate?
@@ -104,10 +104,10 @@ class SPStorkPresentationController: UIPresentationController, UIGestureRecogniz
             self.indicatorView.accessibilityLabel = closeTitle
             presentedView.addSubview(self.indicatorView)
             self.indicatorView.translatesAutoresizingMaskIntoConstraints = false
-            self.indicatorView.widthAnchor.constraint(equalToConstant: 36).isActive = true
-            self.indicatorView.heightAnchor.constraint(equalToConstant: 13).isActive = true
+            self.indicatorView.widthAnchor.constraint(equalToConstant: 30).isActive = true
+            self.indicatorView.heightAnchor.constraint(equalToConstant: 4).isActive = true
             self.indicatorView.centerXAnchor.constraint(equalTo: presentedView.centerXAnchor).isActive = true
-            self.indicatorView.topAnchor.constraint(equalTo: presentedView.topAnchor, constant: 12).isActive = true
+            self.indicatorView.topAnchor.constraint(equalTo: presentedView.topAnchor, constant: 6).isActive = true
             self.indicatorView.mode = self.indicatorMode
 
             if UIAccessibility.isVoiceOverRunning {

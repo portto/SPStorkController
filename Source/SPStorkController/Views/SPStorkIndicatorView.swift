@@ -88,7 +88,7 @@ open class SPStorkIndicatorView: UIView {
         self.leftView.transform = .identity
         self.rightView.transform = .identity
         
-        self.frame = CGRect.init(x: self.frame.origin.x, y: self.frame.origin.y, width: 36, height: 13)
+        self.frame = CGRect.init(x: self.frame.origin.x, y: self.frame.origin.y, width: 30, height: 4)
         
         let height: CGFloat = 5
         let correction = height / 2

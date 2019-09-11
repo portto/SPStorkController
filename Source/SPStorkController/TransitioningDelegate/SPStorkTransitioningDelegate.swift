@@ -27,11 +27,11 @@ public final class SPStorkTransitioningDelegate: NSObject, UIViewControllerTrans
     public var tapAroundToDismissEnabled: Bool = true
     public var showCloseButton: Bool = false
     public var showIndicator: Bool = true
-    public var indicatorColor: UIColor = UIColor.init(red: 202/255, green: 201/255, blue: 207/255, alpha: 1)
+    public var indicatorColor: UIColor = UIColor.init(red: 228/255, green: 228/255, blue: 228/255, alpha: 1)
     public var hideIndicatorWhenScroll: Bool = false
-    public var indicatorMode: SPStorkArrowMode = .auto
+    public var indicatorMode: SPStorkArrowMode = .alwaysLine
     public var customHeight: CGFloat? = nil
-    public var translateForDismiss: CGFloat = 200
+    public var translateForDismiss: CGFloat = 50
     public var cornerRadius: CGFloat = 10
     public var hapticMoments: [SPStorkHapticMoments] = [.willDismissIfRelease]
     public weak var storkDelegate: SPStorkControllerDelegate? = nil
